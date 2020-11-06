@@ -11,7 +11,7 @@ def client_program():
         client_socket.connect((host, port))
     except socket.error as e:
         print(str(e))
-   # client_socket.connect((host, port))  # connect to the server
+
 
     Response = client_socket.recv(1024)
     while True:
