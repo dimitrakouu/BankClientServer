@@ -16,10 +16,9 @@ class Server(object):
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # get instance
         server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server_socket.bind((self.host, self.port))
-        print('Waitiing for a Connection..')
+        print('Server started. Waiting for a Connection..')
         # configure how many client the server can listen simultaneously
-        server_socket.listen(5)
-        threads=[]
+        server_socket.listen(1)
 
         while True:
              #accept client
@@ -27,38 +26,57 @@ class Server(object):
              print('Connected to: ' + address[0] + ':' + str(address[1]))
              newthread= threading.Thread(target=self.threaded_client, args=(connection,)) # start_new_thread(threaded_client, (conn,))
              newthread.start()
-         #    print('Thread Number: ' + threading.current_thread().name())
-          #   threads.append(newthread)
+
         server_socket.close()
 
 
-        # for i in threads:
-        #     i.join()
-
-
     def threaded_client(self, connection_thread):
-        name_option = connection_thread.recv(2048).decode('utf-8')
-        connection_thread.sendall(str.encode('Welcome to the Server ' + name_option))
+        client_name = connection_thread.recv(2048).decode('utf-8')
+        client_password = connection_thread.recv(2048).decode('utf-8')
+
+        # elegxos an uparxei stn vasi
+
+        print('Client ' +client_name + """ connected to the server. Waiting for client's option""")
+        print(client_password)
+        connection_thread.sendall(str.encode('Welcome to the Server ' + client_name +'. Wait for validation.'))
         while True:
             #connection_thread.sendall(str.encode('Welcome '+ name_option))
             option = connection_thread.recv(2048).decode('utf-8')
             print('Client  option: ' + option)
-            if 'EXIT' in option.upper():
-                print('Session terminated.')
-                break
-            elif 'VALIDATION' in option.upper():
-                print('Validation')
+            if option == '1':
+                print('Withdrawal')
+                connection_thread.sendall(str.encode('--WITHDRAWAL--\n Give the amount of the withdrawal: '))
+                amount = connection_thread.recv(2048).decode('utf-8')
+                if(amount <=0):
+                    connection_thread.sendall(str.encode('Invalid amount.'))
+                    print("Client gave invalid amount.")
+                #Check if amount can be expressed in multiples of 20 and 50
+
                 pass
-            elif 'BALANCE' in option.upper():
+            elif option == '2':
+                print('Deposit')
+                connection_thread.sendall(str.encode('--DEPOSIT--\n Give the amount of the deposit: '))
+                amount = connection_thread.recv(2048).decode('utf-8')
+                if (amount <= 0 ) or (amount % 5 == 2):
+                    connection_thread.sendall(str.encode('Invalid amount.'))
+                    print("Client gave invalid amount.")
+                    break
+                #Check the database
+                # if():
+                #     connection_thread.sendall(str.encode('Take your money'))
+                # else:
+                #     connection_thread.sendall(str.encode('You done have enough money.'))
+                #
+                pass
+            elif option == '3':
                 print('Balance')
                 pass
-            elif 'CASH_BACK' in option.upper():
-                print('Cash back')
-                pass
+            elif option == '4':
+                print('Client exited.Session terminated.')
+                break
             else:
-                print('sth went wrong.')
-              #  connection_thread.sendall('sth went wrong'.encode('utf-8'))
-                connection_thread.sendall(str.encode('Sth went wrong\n'))
+                print('Something went wrong.')
+                connection_thread.sendall(str.encode('Something went wrong\n'))
 
     def validate_user(self, user, password):
         pass
