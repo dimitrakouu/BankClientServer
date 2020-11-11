@@ -37,30 +37,59 @@ class Server(object):
         # elegxos an uparxei stn vasi
 
         print('Client ' +client_name + """ connected to the server. Waiting for client's option""")
-        print(client_password)
         connection_thread.sendall(str.encode('Welcome to the Server ' + client_name +'. Wait for validation.'))
         while True:
-            #connection_thread.sendall(str.encode('Welcome '+ name_option))
+            #connection_thread.sendall(str.encode('Welcome '+ client_name))
             option = connection_thread.recv(2048).decode('utf-8')
             print('Client  option: ' + option)
             if option == '1':
                 print('Withdrawal')
                 connection_thread.sendall(str.encode('--WITHDRAWAL--\n Give the amount of the withdrawal: '))
-                amount = connection_thread.recv(2048).decode('utf-8')
-                if(amount <=0):
+                amount = int(connection_thread.recv(2048).decode('utf-8'))
+                print(amount)
+                #Check if the amount is valid
+                if(amount > 0 and (amount%10==0)):
+                    #Check if amount can be expressed in multiples of 20 and 50
+                    multOf20= (amount/20 == amount//20)
+                    multof50= (amount>=50 and ((amount-50)/20 == (amount-50)//20))
+                    cash=[]
+                    if multOf20 or multof50:
+                        if not multOf20:
+                            fifties = 1
+                            temp = amount - 50
+                            twenties = temp // 20
+                            while twenties >= 5:
+                                cash.append(50)
+                                cash.append(50)
+                                twenties -= 5
+                            while fifties:
+                                cash.append(50)
+                                fifties -= 1
+                        else:
+                            twenties = amount // 20
+                        while twenties:
+                            cash.append(20)
+                            twenties -=1
+                        print(sorted(cash))
+                        listToStr = ' '.join(map(str, cash))
+                        connection_thread.sendall(str.encode(listToStr))
+                    else:
+                        connection_thread.sendall(str.encode('Amount can not be expressed in multiples of 20 and 50.'))
+                        print('Amount can not be expressed in multiples of 20 and 50.')
+                else:
                     connection_thread.sendall(str.encode('Invalid amount.'))
-                    print("Client gave invalid amount.")
-                #Check if amount can be expressed in multiples of 20 and 50
-
-                pass
+                    print('Client gave invalid amount.')
             elif option == '2':
                 print('Deposit')
                 connection_thread.sendall(str.encode('--DEPOSIT--\n Give the amount of the deposit: '))
-                amount = connection_thread.recv(2048).decode('utf-8')
-                if (amount <= 0 ) or (amount % 5 == 2):
+                amount = int(connection_thread.recv(2048).decode('utf-8'))
+                if (amount <= 0 ) or (amount % 5 != 0):
                     connection_thread.sendall(str.encode('Invalid amount.'))
                     print("Client gave invalid amount.")
                     break
+                else:
+                    connection_thread.sendall(str.encode('Deposit is done.'))
+                    print("Deposit is done.")
                 #Check the database
                 # if():
                 #     connection_thread.sendall(str.encode('Take your money'))
@@ -75,8 +104,9 @@ class Server(object):
                 print('Client exited.Session terminated.')
                 break
             else:
-                print('Something went wrong.')
                 connection_thread.sendall(str.encode('Something went wrong\n'))
+                print('Something went wrong.')
+
 
     def validate_user(self, user, password):
         pass

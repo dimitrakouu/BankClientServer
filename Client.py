@@ -29,39 +29,40 @@ class Client(object):
                 print(response_from_server)
            users_credentials += 1
            request = input('Choose an option.\n1)Withdrawal.\n2)Deposit.\n3)Balance.\n4)Exit.\n')
-           if '4' == request:
+           if '4' == request: #exit
                print('Exiting.')
                self.client_socket.sendall('{}'.format('Exit ').encode('utf-8'))
                self.client_socket.close()
                break
            self.client_socket.sendall(request.encode('utf-8'))
-           if request == '1':
+           if request == '1': #withdrawal
                response_from_server = self.client_socket.recv(1024).decode('utf-8')
                print(response_from_server)
                amount = input()
                # send the amount to server
-               self.client_socket.sendall(request.encode('utf-8'))
+               self.client_socket.sendall(amount.encode('utf-8'))
                # take the respone and print it
-               # response_from_server = self.client_socket.recv(1024).decode('utf-8')
-               # print(response_from_server)
+               response_from_server = self.client_socket.recv(1024).decode('utf-8')
+               print(response_from_server)
                pass
-           elif request == '2':
+           elif request == '2': #deposit
                response_from_server = self.client_socket.recv(1024).decode('utf-8')
                print(response_from_server)
                amount=input()
                #send the amount to server
-               self.client_socket.sendall(request.encode('utf-8'))
+               self.client_socket.sendall(amount.encode('utf-8'))
                #take the respone and print it
-               # response_from_server = self.client_socket.recv(1024).decode('utf-8')
-               # print(response_from_server)
+               response_from_server = self.client_socket.recv(1024).decode('utf-8')
+               print(response_from_server)
                pass
-           elif request == '3':
+           elif request == '3': #balance
                #take balance from server and print
                #response_from_server = self.client_socket.recv(1024).decode('utf-8')
                #print(response_from_server)
                pass
            else:
-               print('Something went wrong.')
+               response_from_server = self.client_socket.recv(1024).decode('utf-8')
+               print(response_from_server)
 
 
         self.client_socket.close()  # close the connection
